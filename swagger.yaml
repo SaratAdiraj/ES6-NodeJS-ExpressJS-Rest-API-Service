@@ -1,0 +1,166 @@
+openapi: 3.0.0
+info:
+  title: ExpressJS-ES6-Rest-API-Service
+  version: 1.0.0
+  description: |
+    A RESTful API using Express.js with native ES6 modules, schema-validated DTOs, and pluggable storage.
+    Features batch operations, wildcard search, and JSON Schema validation with Ajv.
+
+servers:
+  - url: http://localhost:3000/api
+
+paths:
+  /users:
+    post:
+      summary: Create one or more users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/User'
+      responses:
+        '201':
+          description: Users created successfully
+        '400':
+          description: Invalid request body
+    get:
+      summary: List all users
+      responses:
+        '200':
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+
+  /users/search:
+    get:
+      summary: Search users with wildcards in name or email
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Query string with optional wildcard `*`
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Matched users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+
+  /users/{id}:
+    get:
+      summary: Get a user by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '404':
+          description: User not found
+
+    put:
+      summary: Update a user by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: User updated
+        '400':
+          description: Invalid request
+
+    delete:
+      summary: Delete a user by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: User deleted
+        '404':
+          description: User not found
+
+  /users/batchUpdate:
+    put:
+      summary: Batch update multiple users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/User'
+      responses:
+        '200':
+          description: Users updated
+        '400':
+          description: Validation error
+
+  /users/batchDelete:
+    delete:
+      summary: Batch delete users by ID list
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+      responses:
+        '204':
+          description: Users deleted
+        '400':
+          description: Invalid ID list
+
+components:
+  schemas:
+    User:
+      type: object
+      required:
+        - id
+        - name
+        - email
+      properties:
+        id:
+          type: string
+          example: u123
+        name:
+          type: string
+          example: Alice
+        email:
+          type: string
+          format: email
+          example: alice@example.com
