@@ -1,72 +1,45 @@
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
 
-const ajv = new Ajv();
+const ajv = new Ajv({ allErrors: true });
 addFormats(ajv);
 
 /**
- * Versatile `inherits()` utility that allows combining:
- * - Zero or one ES6 base class
- * - Zero or more mixins (functions returning classes)
- * - Zero or more JSON Schemas (for validation)
- *
  * Usage Examples:
  *
- * 1. Schema only:
- *    class UserDTO extends inherits(UserSchema) {}
+ * // Only schema validation
+ * class A extends inherits(Schema1) {}
  *
- * 2. Base class + schema:
- *    class BaseUser {
- *      get type() { return 'user'; }
- *    }
- *    class UserDTO extends inherits(BaseUser, UserSchema) {}
+ * // With base class and schema
+ * class A extends inherits(BaseClass, Schema1) {}
  *
- * 3. Mixins + schema:
- *    const Timestamp = Base => class extends Base {
- *      get createdAt() { return Date.now(); }
- *    };
- *    class UserDTO extends inherits(Timestamp, UserSchema) {}
+ * // With base class, mixins, and schemas
+ * class A extends inherits(BaseClass, MixinA, MixinB, Schema1, Schema2) {}
  *
- * 4. Base class + mixins + multiple schemas:
- *    const SoftDelete = Base => class extends Base {
- *      delete() { this._deleted = true; }
- *    };
- *    const A = { properties: { a: { type: 'string' } }, required: ['a'] };
- *    const B = { properties: { b: { type: 'number' } }, required: ['b'] };
- *    class UserDTO extends inherits(BaseUser, SoftDelete, A, B) {}
- *
- * 5. No schema, no class:
- *    class EmptyDTO extends inherits() {}
+ * // Only mixins and schema
+ * class A extends inherits(MixinA, Schema1) {}
  */
-
-const isClass = v => typeof v === 'function' && /^class\\s/.test(v.toString());
-const isMixin = v => typeof v === 'function' && !isClass(v);
-const isSchema = v =>
-  typeof v === 'object' &&
-  v !== null &&
-  (v.type || v.properties || v.allOf || v.anyOf);
-
-export function inherits(...args) {
-  let Base = class {};
+export default function inherits(...args) {
   const schemas = [];
+  let BaseClass = Object;
+  const mixins = [];
 
   for (const arg of args) {
-    if (isClass(arg)) {
-      Base = arg;
-    } else if (isMixin(arg)) {
-      Base = arg(Base);
-    } else if (isSchema(arg)) {
+    if (typeof arg === 'function') {
+      if (BaseClass === Object) {
+        BaseClass = arg;
+      } else {
+        mixins.push(arg);
+      }
+    } else if (typeof arg === 'object' && arg !== null) {
       schemas.push(arg);
-    } else {
-      throw new Error('Invalid argument to inherits(): must be a class, mixin, or schema');
     }
   }
 
-  const validate = schemas.length
-    ? ajv.compile(schemas.length === 1 ? schemas[0] : { allOf: schemas })
-    : null;
+  const schema = schemas.length === 1 ? schemas[0] : { allOf: schemas };
+  const validate = schemas.length ? ajv.compile(schema) : null;
 
-  return class extends Base {
+  class Combined extends BaseClass {
     constructor(data = {}) {
       super(data);
       if (validate && !validate(data)) {
@@ -75,5 +48,27 @@ export function inherits(...args) {
       Object.assign(this, data);
       Object.freeze(this);
     }
-  };
+
+    static validate(data) {
+      return validate ? validate(data) : true;
+    }
+
+    static get errors() {
+      return validate?.errors || null;
+    }
+  }
+
+  for (const mixin of mixins) {
+    Object.getOwnPropertyNames(mixin.prototype).forEach(name => {
+      if (name !== 'constructor') {
+        Object.defineProperty(
+          Combined.prototype,
+          name,
+          Object.getOwnPropertyDescriptor(mixin.prototype, name)
+        );
+      }
+    });
+  }
+
+  return Combined;
 }
