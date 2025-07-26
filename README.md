@@ -29,15 +29,11 @@ npm test
 
 ## 📚 API Endpoints
 
-| Method | Endpoint           | Description              |
-|--------|--------------------|--------------------------|
-| POST   | `/api/users`       | Create one or more users |
-| GET    | `/api/users`       | List all users           |
-| GET    | `/api/users/:id`   | Get a user by ID         |
-| PUT    | `/api/users/:id`   | Update a user by ID      |
-| DELETE | `/api/users/:id`   | Delete a user by ID      |
-| POST   | `/api/users/batch` | Batch insert/update      |
-| DELETE | `/api/users/batch` | Batch delete             |
+| Method | Endpoint           | Description                        |
+|--------|--------------------|------------------------------------|
+| POST   | `/api/users/batch` | Batch insert or update users       |
+| DELETE | `/api/users/batch` | Batch delete users                 |
+| GET    | `/api/users`       | List users with optional wildcard search |
 
 ## 📖 Swagger Docs
 
@@ -70,7 +66,7 @@ npm test
 Includes:
 - Valid and invalid input tests
 - Batch operations
-- Search and deletion
+- Wildcard search and deletion
 
 ## 🗂 Folder Structure
 
