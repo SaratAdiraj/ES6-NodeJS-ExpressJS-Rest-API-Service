@@ -74,11 +74,14 @@ Includes:
 
 ```
 .
+├── __tests__/
 ├── controllers/
+├── dtos/
+├── routes/
+├── schemas/
 ├── services/
 ├── stores/
-├── models/
-├── __tests__/
+├── utils/
 ├── swagger.yaml
 ├── index.js
 └── README.md
