@@ -29,11 +29,13 @@ npm test
 
 ## 📚 API Endpoints
 
-| Method | Endpoint           | Description                        |
-|--------|--------------------|------------------------------------|
-| POST   | `/api/users/batch` | Batch insert or update users       |
-| DELETE | `/api/users/batch` | Batch delete users                 |
-| GET    | `/api/users`       | List users with optional wildcard search |
+| Method | Endpoint             | Description                        |
+|--------|----------------------|------------------------------------|
+| GET    | `/api/users`         | List all users                     |
+| POST   | `/api/users/batch`   | Batch insert users                 |
+| PUT    | `/api/users/batch`   | Batch update users                 |
+| DELETE | `/api/users/batch`   | Batch delete users                 |
+| GET    | `/api/users/search`  | Search users by wildcard criteria  |
 
 ## 📖 Swagger Docs
 
