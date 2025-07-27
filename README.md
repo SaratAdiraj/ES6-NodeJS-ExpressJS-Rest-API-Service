@@ -1,102 +1,115 @@
 # ExpressJS-ES6-Rest-API-Service
 
-A clean, modular, and extensible **Node.js REST API service** using **ExpressJS**, written entirely in modern **ES6+** syntax without Babel. It uses **JSON Schema** to define DTOs and validate incoming requests, and follows a **controller/service/storage pattern** that supports dependency injection and clean separation of concerns.
+A fully modular, testable REST API boilerplate built using modern **ES6+ syntax** with support for:
 
-## 🔧 Features
+- ✅ JSON Schema-based **runtime type enforcement** for DTOs (TypeScript-like safety, no compiler)
+- ✅ A powerful `inherits()` utility for class-based schema validation and mixin composition
+- ✅ Extensible storage system (uses File-based by default; pluggable to SQL/NoSQL via Adapter Pattern)
+- ✅ Batch operations: Create, Update, Delete multiple users at once
+- ✅ Wildcard search and listing functionality
+- ✅ Swagger/OpenAPI integration for documentation
+- ✅ Jest test suite (pure ES6, no Babel, no transpilers)
 
-- ✅ **ES6 Modules** — Clean syntax using `import/export`, no Babel required
-- ✅ **JSON Schema as Interfaces** — DTOs validated against schemas using `Ajv`
-- ✅ **Controller/Service Architecture** — Separation of logic layers
-- ✅ **Extensible Storage** — Use in-memory, file-based, SQL, or NoSQL backends with the adapter-like storage interface
-- ✅ **Batch Support** — Create, update, delete users in bulk
-- ✅ **Wildcard Search** — Filter users by partial name or email match
-- ✅ **Jest Tests** — Full test suite using Jest + Supertest (no Babel)
-- ✅ **Swagger Docs** — Auto-generated OpenAPI docs via `swagger-ui-express`
-- ✅ **Serverless Compatible** — No singleton globals, can be easily deployed to containers or serverless platforms
+---
 
-## 📦 Quick Start
+## 🧠 Unique Features
+
+### 🔐 TypeScript-like DTO Enforcement — in Pure ES6
+
+This project uses a custom-built `inherits()` utility which:
+
+- Accepts **zero or more** JSON Schemas
+- Accepts **zero or more** mixin/base classes
+- Automatically validates constructor inputs using [AJV](https://github.com/ajv-validator/ajv)
+- Provides static `.validate()` and `.errors` for manual checks
+- Supports `Object.freeze()` to ensure immutability
+
+```js
+class UserDTO extends inherits(BaseClass, SchemaA, SchemaB, TimestampMixin) {}
+```
+
+This gives you runtime type guarantees without the need for TypeScript, Babel, or any compile step.
+
+---
+
+## 🚀 API Endpoints
+
+| Method | Path               | Description                         |
+|--------|--------------------|-------------------------------------|
+| GET    | `/users`           | List all users                      |
+| GET    | `/users/search`    | Search users with `?q=...`          |
+| POST   | `/users/batch`     | Batch create users (array of DTOs)  |
+| PUT    | `/users/batch`     | Batch update users (array of DTOs)  |
+| DELETE | `/users/batch`     | Batch delete users (array of `{ id }`) |
+
+---
+
+## 🗂 Storage Layer (Pluggable)
+
+Storage is abstracted using an **adapter-style interface**, currently implemented using a simple file-based store.
+
+You can easily swap in:
+
+- SQL (e.g., PostgreSQL, SQLite)
+- NoSQL (e.g., MongoDB, DynamoDB)
+- In-memory or external services
+
+To add a new backend, simply implement the same methods as `FileStore.js`.
+
+---
+
+## 📦 Setup
 
 ```bash
-# Install dependencies
+git clone https://github.com/your-user/ExpressJS-ES6-Rest-API-Service.git
+cd ExpressJS-ES6-Rest-API-Service
 npm install
-
-# Run the API server
 npm start
+```
 
-# Run tests
+---
+
+## 🧪 Run Tests
+
+```bash
 npm test
 ```
 
-## 📚 API Endpoints
+Includes full test coverage for:
 
-| Method | Endpoint             | Description                        |
-|--------|----------------------|------------------------------------|
-| GET    | `/api/users`         | List all users                     |
-| POST   | `/api/users/batch`   | Batch insert users                 |
-| PUT    | `/api/users/batch`   | Batch update users                 |
-| DELETE | `/api/users/batch`   | Batch delete users                 |
-| GET    | `/api/users/search`  | Search users by wildcard criteria  |
+- REST endpoints (`UserController.test.js`)
+- `inherits` utility (`inherits.test.js`)
 
-## 📖 Swagger Docs
+---
 
-After starting the server, view API docs at:
+## 📜 Swagger/OpenAPI
+
+Swagger UI is available at:
 
 ```
 http://localhost:3000/api-docs
 ```
 
-Swagger YAML is located at: `swagger.yaml`
+Schema defined in [`swagger.yaml`](./swagger.yaml)
 
-## 🗃 Storage Interface
+---
 
-The system uses an **abstract `Storage` interface** (adapter pattern) to support multiple backends.
-
-Default backend is a **JSON file-based store**, but you can extend it for:
-
-- 🔌 SQL (e.g., PostgreSQL, MySQL)
-- 🌱 NoSQL (e.g., MongoDB)
-- ☁️ Cloud-native storage
-
-Just implement the `Storage` class methods: `list()`, `get(id)`, `add(user)`, `update(id, user)`, `delete(id)`.
-
-## ✅ Test Coverage
+## 📁 .gitignore (example)
 
 ```bash
-npm test
-```
-
-Includes:
-- Valid and invalid input tests
-- Batch operations
-- Wildcard search and deletion
-
-## 🗂 Folder Structure
-
-```
-.
-├── __tests__/
-├── controllers/
-├── dtos/
-├── routes/
-├── schemas/
-├── services/
-├── stores/
-├── utils/
-├── swagger.yaml
-├── index.js
-└── README.md
-```
-
-## 🔐 .gitignore
-
-Make sure these are in `.gitignore`:
-
-```
 node_modules/
 users.json
 .env
 ```
 
-## 📜 License
+---
 
-MIT
+## ✅ Summary
+
+This project gives you:
+
+- A modern, container- and serverless-ready Express.js starter
+- Type-safe ES6 DTOs using JSON Schema + `inherits`
+- Easy extension to real-world production backends
+
+Enjoy TypeScript-level structure — with **zero TypeScript**.
